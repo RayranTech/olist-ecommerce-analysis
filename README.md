@@ -8,7 +8,7 @@
 
 ## 📌 Contexto
 
-A Olist é uma plataforma brasileira que conecta pequenos lojistas a grandes marketplaces. Este projeto analisa **99.441 pedidos** realizados entre setembro de 2016 e setembro de 2018, respondendo a perguntas estratégicas de negócio sobre receita, satisfação de clientes e logística.
+A Olist é uma plataforma brasileira que conecta pequenos lojistas a grandes marketplaces. Este projeto analisa **99.441 pedidos** realizados entre setembro de 2016 e agosto de 2018, respondendo a perguntas estratégicas de negócio sobre receita, satisfação de clientes e logística.
 
 ---
 
