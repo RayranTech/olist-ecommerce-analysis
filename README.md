@@ -2,7 +2,9 @@
 
 > Análise completa de dados de um e-commerce brasileiro com SQL avançado, Python e dashboard interativo no Power BI.
 
-![Dashboard](reports/dashboard.png)
+
+<img width="1280" height="718" alt="Captura de tela 2026-03-20 092956" src="https://github.com/user-attachments/assets/cc5e7a09-ddcb-4273-a6fe-aa7e06f3c709" />
+
 
 ---
 
