@@ -29,21 +29,29 @@ A partir dessa pergunta central, três hipóteses foram investigadas:
 ```
 olist-ecommerce-analysis/
 │
-├── data/                          # Dados brutos (não versionados)
-│   └── vendas_mensais.csv         # Agregação mensal gerada pelo pipeline
+├── data/                              # Dados brutos (não versionados)
 │
 ├── notebooks/
-│   ├── importar_dados.ipynb       # Carga dos CSVs no PostgreSQL
-│   └── exploracao_inicial.ipynb   # Análise exploratória e geração de gráficos
+│   ├── ETL/
+│   │   ├── extract.ipynb             # Extração — leitura dos CSVs brutos
+│   │   ├── transform.ipynb           # Transformação — limpeza, traduções e agregações
+│   │   └── load.ipynb                # Carga — inserção dos dados no PostgreSQL
+│   └── analise.ipynb                 # Análise exploratória e geração de gráficos
 │
 ├── sql/
-│   ├── criar_tabelas.ipynb        # DDL das tabelas no PostgreSQL
-│   └── analises.sql               # Queries de análise de negócio
+│   ├── criar_tabelas.sql             # DDL das tabelas no PostgreSQL
+│   └── analises.sql                  # Queries com CTEs e Window Functions
 │
-├── dashboard/                     # Arquivo Power BI (.pbix)
+├── dashboard/
+│   └── Olist-Ecommerce-Analysis.pbix # Dashboard interativo no Power BI
 │
-├── reports/                       # Gráficos e imagens exportados
+├── reports/                          # Gráficos exportados
+│   ├── vendas_mensais.png
+│   ├── top_categorias.png
+│   └── entrega_vs_avaliacao.png
 │
+├── .env                              # Variáveis de ambiente (não versionado)
+├── .gitignore
 └── README.md
 ```
 
@@ -55,12 +63,13 @@ olist-ecommerce-analysis/
 |---|---|
 | **Python 3** | Limpeza, transformação e análise exploratória |
 | **Pandas** | Manipulação de DataFrames |
-| **Matplotlib / Seaborn** | Visualizações exploratórias |
+| **Matplotlib** | Visualizações exploratórias |
 | **PostgreSQL** | Banco de dados relacional para armazenamento e consultas |
 | **SQLAlchemy** | Conexão Python ↔ PostgreSQL |
 | **SQL (CTEs + Window Functions)** | Análises avançadas de negócio |
-| **Power BI** | Dashboard interativo com DAX |
+| **Power BI + DAX** | Dashboard interativo |
 | **Git / GitHub** | Versionamento de código |
+| **python-dotenv** | Gerenciamento seguro de credenciais |
 
 ---
 
@@ -70,22 +79,30 @@ olist-ecommerce-analysis/
 Kaggle (CSV brutos)
        │
        ▼
-importar_dados.ipynb
-  └── Carrega CSVs via Pandas
-  └── Insere tabelas no PostgreSQL via SQLAlchemy
+notebooks/ETL/extract.ipynb
+  └── Leitura dos CSVs via Pandas
+       │
+       ▼
+notebooks/ETL/transform.ipynb
+  └── Conversão de tipos e datas
+  └── Tradução de categorias e status para português
+  └── Criação da tabela vendas_mensais (agregação mensal)
+  └── Remoção de meses incompletos (set/2018)
+       │
+       ▼
+notebooks/ETL/load.ipynb
+  └── Carga de todas as tabelas no PostgreSQL via SQLAlchemy
        │
        ▼
 PostgreSQL (banco: olist)
   └── orders, order_items, customers
   └── products, reviews, category_translation
-  └── vendas_mensais (agregada pelo Python)
+  └── vendas_mensais
        │
        ▼
-exploracao_inicial.ipynb
-  └── Limpeza e conversão de tipos
-  └── Cálculo de métricas de negócio
-  └── Geração de gráficos exploratórios
-  └── Exportação de dados tratados
+notebooks/analise.ipynb
+  └── Análise exploratória dos dados
+  └── Geração de gráficos e métricas de negócio
        │
        ▼
 sql/analises.sql
@@ -93,9 +110,10 @@ sql/analises.sql
   └── Análises por estado, categoria e tempo de entrega
        │
        ▼
-Power BI (conectado ao PostgreSQL)
+Power BI (conectado diretamente ao PostgreSQL)
   └── Medidas DAX
-  └── Dashboard interativo
+  └── Segmentações interativas
+  └── Dashboard com capa
 ```
 
 ---
@@ -103,19 +121,19 @@ Power BI (conectado ao PostgreSQL)
 ## 📊 Principais Análises
 
 ### 1. Evolução de Receita Mensal
-A receita cresceu de forma consistente entre janeiro e novembro de 2017, atingindo o pico de **R$ 1 milhão** em novembro de 2017 — possivelmente impulsionado pela Black Friday. A queda em setembro de 2018 é explicada pelo corte do dataset no meio do mês.
+A receita cresceu de forma consistente entre janeiro e novembro de 2017, atingindo o pico de **R$ 1 milhão** em novembro de 2017 — possivelmente impulsionado pela Black Friday. Os dados vão até agosto de 2018, quando a receita se mantinha estável em torno de R$ 850 mil mensais.
 
 ### 2. Top 10 Categorias por Receita
 | Categoria | Receita Total | % da Receita |
 |---|---|---|
-| health_beauty | R$ 1.233.131 | 9,45% |
-| watches_gifts | R$ 1.166.176 | 8,94% |
-| bed_bath_table | R$ 1.023.434 | 7,85% |
-| sports_leisure | R$ 954.852 | 7,32% |
-| computers_accessories | R$ 888.724 | 6,81% |
+| Saúde e Beleza | R$ 1.233.131 | 9,45% |
+| Relógios e Presentes | R$ 1.166.176 | 8,94% |
+| Cama, Mesa e Banho | R$ 1.023.434 | 7,85% |
+| Esporte e Lazer | R$ 954.852 | 7,32% |
+| Informática e Acessórios | R$ 888.724 | 6,81% |
 
 ### 3. Receita por Estado
-São Paulo concentra **R$ 5 milhões** em receita — quase 40% do total. Porém, estados do Nordeste como Paraíba (PB) e Alagoas (AL) apresentam os maiores tickets médios, indicando oportunidade de crescimento nessas regiões.
+São Paulo concentra **R$ 5 milhões** em receita — quase 40% do total. Estados do Nordeste como Paraíba (PB) e Alagoas (AL) apresentam os maiores tickets médios, indicando oportunidade de crescimento nessas regiões.
 
 ### 4. Tempo de Entrega vs. Avaliação ⭐
 | Nota | Tempo médio de entrega |
@@ -126,7 +144,7 @@ São Paulo concentra **R$ 5 milhões** em receita — quase 40% do total. Porém
 | ⭐ 4 | 11,8 dias |
 | ⭐ 5 | 10,2 dias |
 
-Clientes que recebem em até 10 dias dão nota 5. Clientes que esperam mais de 20 dias dão nota 1. **A correlação é direta e linear.**
+Clientes que recebem em até 10 dias dão nota 5. Clientes que esperam mais de 20 dias dão nota 1. A correlação é direta e linear.
 
 ### 5. Taxa de Recompra
 | Pedidos por cliente | % de clientes |
@@ -142,14 +160,14 @@ Clientes que recebem em até 10 dias dão nota 5. Clientes que esperam mais de 2
 ## 💡 Insights e Recomendações
 
 ### Insight 1 — Entrega é o principal driver de satisfação
-Reduzir o tempo médio de entrega de 20 para 12 dias nos pedidos com nota baixa poderia elevar a avaliação média de 1 para 3-4 estrelas. Isso impacta diretamente reputação e recompra.
+Reduzir o tempo médio de entrega de 20 para 12 dias nos pedidos com nota baixa poderia elevar a avaliação média de 1 para 3-4 estrelas, impactando diretamente reputação e recompra.
 
 **Recomendação:** Priorizar parceiros logísticos com melhor SLA nas regiões com maior tempo de entrega, especialmente Norte e Nordeste.
 
 ### Insight 2 — Taxa de retenção crítica
-Com 97% dos clientes fazendo apenas uma compra, o custo de aquisição de clientes (CAC) é muito alto. Programas de fidelidade ou cupons para segunda compra poderiam ter alto impacto.
+Com 97% dos clientes fazendo apenas uma compra, o custo de aquisição de clientes (CAC) é muito alto.
 
-**Recomendação:** Implementar campanha de reativação para os 90.557 clientes que compraram apenas uma vez, com foco nas categorias de maior ticket médio (watches_gifts, R$ 199).
+**Recomendação:** Implementar campanha de reativação para os 90.557 clientes que compraram apenas uma vez, com foco nas categorias de maior ticket médio como Relógios e Presentes (R$ 199 de ticket médio).
 
 ---
 
@@ -168,32 +186,39 @@ git clone https://github.com/RayranTech/olist-ecommerce-analysis.git
 cd olist-ecommerce-analysis
 
 # 2. Instale as dependências
-pip install pandas matplotlib seaborn sqlalchemy psycopg2-binary jupyter
+pip install pandas matplotlib sqlalchemy psycopg2-binary jupyter python-dotenv
 
-# 3. Baixe o dataset
+# 3. Configure as variáveis de ambiente
+# Crie um arquivo .env na raiz com:
+# DB_PASSWORD=sua_senha_aqui
+
+# 4. Baixe o dataset
 # Acesse: https://www.kaggle.com/datasets/olistbr/brazilian-ecommerce
 # Extraia os CSVs na pasta /data
 
-# 4. Crie o banco de dados
-# No PostgreSQL: CREATE DATABASE olist;
+# 5. Crie o banco de dados no PostgreSQL
+# CREATE DATABASE olist;
 # Execute: sql/criar_tabelas.sql
 
-# 5. Execute os notebooks em ordem
-# notebooks/importar_dados.ipynb
-# notebooks/exploracao_inicial.ipynb
+# 6. Execute os notebooks na ordem
+# notebooks/ETL/extract.ipynb
+# notebooks/ETL/transform.ipynb
+# notebooks/ETL/load.ipynb
+# notebooks/analise.ipynb
 
-# 6. Execute as queries SQL
+# 7. Execute as queries SQL
 # sql/analises.sql
 
-# 7. Abra o dashboard
-# dashboard/ → conecte ao PostgreSQL local
+# 8. Abra o dashboard
+# dashboard/Olist-Ecommerce-Analysis.pbix
+# Conecte ao PostgreSQL local com suas credenciais
 ```
 
 ---
 
 ## 📬 Contato
 
-Feito por **Rayran** — [GitHub](https://github.com/RayranTech) · [LinkedIn](#)
+[GitHub](https://github.com/RayranTech)
 
 ---
 
