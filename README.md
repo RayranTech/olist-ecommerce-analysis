@@ -2,9 +2,7 @@
 
 > Análise completa de dados de um e-commerce brasileiro com SQL avançado, Python e dashboard interativo no Power BI.
 
-
 <img width="1280" height="718" alt="Captura de tela 2026-03-20 092956" src="https://github.com/user-attachments/assets/cc5e7a09-ddcb-4273-a6fe-aa7e06f3c709" />
-
 
 ---
 
@@ -48,10 +46,12 @@ olist-ecommerce-analysis/
 │   └── Olist-Ecommerce-Analysis.pbix # Dashboard interativo no Power BI
 │
 ├── reports/                          # Gráficos exportados
+│   ├── dashboard.png
 │   ├── vendas_mensais.png
 │   ├── top_categorias.png
 │   └── entrega_vs_avaliacao.png
 │
+├── run_pipeline.py                   # Orquestrador do pipeline completo
 ├── .env                              # Variáveis de ambiente (não versionado)
 ├── .gitignore
 └── README.md
@@ -188,7 +188,7 @@ git clone https://github.com/RayranTech/olist-ecommerce-analysis.git
 cd olist-ecommerce-analysis
 
 # 2. Instale as dependências
-pip install pandas matplotlib sqlalchemy psycopg2-binary jupyter python-dotenv
+pip install pandas matplotlib sqlalchemy psycopg2-binary jupyter python-dotenv nbconvert
 
 # 3. Configure as variáveis de ambiente
 # Crie um arquivo .env na raiz com:
@@ -202,11 +202,12 @@ pip install pandas matplotlib sqlalchemy psycopg2-binary jupyter python-dotenv
 # CREATE DATABASE olist;
 # Execute: sql/criar_tabelas.sql
 
-# 6. Execute os notebooks na ordem
-# notebooks/ETL/extract.ipynb
-# notebooks/ETL/transform.ipynb
-# notebooks/ETL/load.ipynb
-# notebooks/analise.ipynb
+# 6. Execute o pipeline completo
+python run_pipeline.py
+
+# Ou execute etapas individualmente:
+python run_pipeline.py --only etl
+python run_pipeline.py --only analise
 
 # 7. Execute as queries SQL
 # sql/analises.sql
